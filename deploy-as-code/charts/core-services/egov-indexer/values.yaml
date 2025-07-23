@@ -43,11 +43,6 @@ egov-indexer-yaml-repo-path: "file:///work-dir/digit-config/egov-indexer/billing
 heap: "-Xmx192m -Xms192m"
 indexer-host: "egov-indexer"
 
-# Volumes
-volumes:
-  - name: workdir
-    emptyDir: {}
-
 # Additional Container Envs
 env: |
   - name: EGOV_SERVICES_INFRA_INDEXER_HOST
@@ -89,7 +84,3 @@ env: |
       secretKeyRef:
         name: elasticsearch-credentials
         key: password
-
-volumeMounts:
-  - name: workdir
-    mountPath: /work-dir
