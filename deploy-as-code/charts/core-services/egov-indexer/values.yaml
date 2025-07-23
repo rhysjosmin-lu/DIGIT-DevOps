@@ -8,6 +8,19 @@ ingress:
   enabled: true
   zuul: true
   context: "egov-indexer"
+  tls:
+    enabled: true
+    hosts:
+      - judas.luarc.com # Replace with actual domain
+    secretName: egov-indexer-tls
+# Volumes
+volumes:
+  - name: git-secret
+    secret:
+      secretName: git-creds
+      defaultMode: 288
+  - name: workdir
+    emptyDir: {}
 
 # Init Containers Configs
 initContainers:
@@ -24,9 +37,10 @@ initContainers:
     enabled: true
     repo: "git@github.com:rhysjosmin-lu/digit-config"
     branch: "master"
-    volumeMounts:
-      - name: workdir
-        mountPath: /work-dir
+    root: "/work-dir/digit-config"
+    depth: "1"
+    oneTime: true
+    ssh: true
 
 # Container Configs
 image:
@@ -37,7 +51,7 @@ healthChecks:
   enabled: true
   livenessProbePath: "/egov-indexer/health"
   readinessProbePath: "/egov-indexer/health"
-appType: "java-spring"
+appType: "java spring"
 tracing-enabled: true
 egov-indexer-yaml-repo-path: "file:///work-dir/digit-config/egov-indexer/billingservices-indexer.yml,file:///work-dir/digit-config/egov-indexer/collection-indexer.yml,file:///work-dir/digit-config/egov-indexer/egov-telemetry-indexer.yml,file:///work-dir/digit-config/egov-indexer/egov-uploader-indexer.yml,file:///work-dir/digit-config/egov-indexer/error-queue.yml,file:///work-dir/digit-config/egov-indexer/finance-rolloutadotpion-indexer.yml,file:///work-dir/digit-config/egov-indexer/payment-indexer.yml,file:///work-dir/digit-config/egov-indexer/rainmaker-pgr-indexer.yml,file:///work-dir/digit-config/egov-indexer/rainmaker-pt-indexer.yml,file:///work-dir/digit-config/egov-indexer/tradelicense-indexer.yml,file:///work-dir/digit-config/egov-indexer/rainmaker-tl-indexer.yml"
 heap: "-Xmx192m -Xms192m"
@@ -83,4 +97,19 @@ env: |
     valueFrom:
       secretKeyRef:
         name: elasticsearch-credentials
+        key: password
+  - name: SPRING_DATASOURCE_URL
+    valueFrom:
+      configMapKeyRef:
+        name: egov-config
+        key: db-url
+  - name: SPRING_DATASOURCE_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: db
+        key: username
+  - name: SPRING_DATASOURCE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db
         key: password
