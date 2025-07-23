@@ -17,10 +17,16 @@ initContainers:
     image:
       repository: "egov-indexer-db"
       tag: 2.9.1-c781a2f714-65
+    volumeMounts:
+      - name: workdir
+        mountPath: /work-dir
   gitSync:
     enabled: true
     repo: "git@github.com:rhysjosmin-lu/digit-config"
     branch: "master"
+    volumeMounts:
+      - name: workdir
+        mountPath: /work-dir
 
 # Container Configs
 image:
@@ -36,6 +42,11 @@ tracing-enabled: true
 egov-indexer-yaml-repo-path: "file:///work-dir/digit-config/egov-indexer/billingservices-indexer.yml,file:///work-dir/digit-config/egov-indexer/collection-indexer.yml,file:///work-dir/digit-config/egov-indexer/egov-telemetry-indexer.yml,file:///work-dir/digit-config/egov-indexer/egov-uploader-indexer.yml,file:///work-dir/digit-config/egov-indexer/error-queue.yml,file:///work-dir/digit-config/egov-indexer/finance-rolloutadotpion-indexer.yml,file:///work-dir/digit-config/egov-indexer/payment-indexer.yml,file:///work-dir/digit-config/egov-indexer/rainmaker-pgr-indexer.yml,file:///work-dir/digit-config/egov-indexer/rainmaker-pt-indexer.yml,file:///work-dir/digit-config/egov-indexer/tradelicense-indexer.yml,file:///work-dir/digit-config/egov-indexer/rainmaker-tl-indexer.yml"
 heap: "-Xmx192m -Xms192m"
 indexer-host: "egov-indexer"
+
+# Volumes
+volumes:
+  - name: workdir
+    emptyDir: {}
 
 # Additional Container Envs
 env: |
@@ -78,3 +89,7 @@ env: |
       secretKeyRef:
         name: elasticsearch-credentials
         key: password
+
+volumeMounts:
+  - name: workdir
+    mountPath: /work-dir
